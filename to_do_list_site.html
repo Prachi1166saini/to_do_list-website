@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="list_site.css">
+
+  
+</head>
+<body>
+
+  <div id="todo-container">
+    <div id="todo-header">To-Do List</div>
+    <ul id="task-list"></ul>
+    <div id="add-task">
+      <input type="text" id="new-task" placeholder="Add a new task">
+      <button onclick="addTask()">Add</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load tasks from local storage
+      loadTasks();
+
+      // Attach event listeners
+      document.getElementById('add-task').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          addTask();
+        }
+      });
+    });
+
+    function addTask() {
+      const inputElement = document.getElementById('new-task');
+      const taskText = inputElement.value.trim();
+
+      if (taskText === '') {
+        alert('Please enter a task.');
+        return;
+      }
+
+      // Create task item
+      const taskItem = document.createElement('li');
+      taskItem.className = 'task-item';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.addEventListener('change', updateTaskStatus);
+
+      const taskLabel = document.createElement('label');
+      taskLabel.innerText = taskText;
+
+      const deleteButton = document.createElement('button');
+      deleteButton.innerText = 'Delete';
+      deleteButton.addEventListener('click', deleteTask);
+
+      // Append elements to the task item
+      taskItem.appendChild(checkbox);
+      taskItem.appendChild(taskLabel);
+      taskItem.appendChild(deleteButton);
+
+      // Append task item to the task list
+      document.getElementById('task-list').appendChild(taskItem);
+
+      // Clear the input field
+      inputElement.value = '';
+
+      // Save tasks to local storage
+      saveTasks();
+    }
+
+    function updateTaskStatus() {
+      // Save tasks to local storage
+      saveTasks();
+    }
+
+    function deleteTask() {
+      const listItem = this.parentNode;
+      const taskList = document.getElementById('task-list');
+
+      // Remove task item from the task list
+      taskList.removeChild(listItem);
+
+      // Save tasks to local storage
+      saveTasks();
+    }
+
+    function saveTasks() {
+      const tasks = [];
+      const taskListItems = document.querySelectorAll('.task-item');
+
+      taskListItems.forEach((taskItem) => {
+        const taskText = taskItem.querySelector('label').innerText;
+        const isCompleted = taskItem.querySelector('input[type="checkbox"]').checked;
+
+        tasks.push({ text: taskText, completed: isCompleted });
+      });
+
+      // Save tasks to local storage
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+      const savedTasks = localStorage.getItem('tasks');
+
+      if (savedTasks) {
+        const tasks = JSON.parse(savedTasks);
+
+        tasks.forEach((task) => {
+          // Create task item
+          const taskItem = document.createElement('li');
+          taskItem.className = 'task-item';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = task.completed;
+          checkbox.addEventListener('change', updateTaskStatus);
+
+          const taskLabel = document.createElement('label');
+          taskLabel.innerText = task.text;
+
+          const deleteButton = document.createElement('button');
+          deleteButton.innerText = 'Delete';
+          deleteButton.addEventListener('click', deleteTask);
+
+          // Append elements to the task item
+          taskItem.appendChild(checkbox);
+          taskItem.appendChild(taskLabel);
+          taskItem.appendChild(deleteButton);
+
+          // Append task item to the task list
+          document.getElementById('task-list').appendChild(taskItem);
+        });
+      }
+    }
+  </script>
+
+</body>
+</html>
